@@ -1,16 +1,41 @@
+from time import sleep
 from selenium import webdriver
+from bs4 import BeautifulSoup
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import undetected_chromedriver as uc
 
-options = webdriver.ChromeOptions()
-options.add_argument("--headless")
+BASE = 'https://www.hltv.org'
+
+options = uc.ChromeOptions()
+#options.add_argument("--headless")
 
 # Caminho para o webdriver baixado em https://chromedriver.chromium.org/downloads
-path = '/home/takeofriedrich/Documentos/chromedriver'
+path = "C:\Program Files (x86)\chromedriver.exe"
 
-driver = webdriver.Chrome(path,options=options)
+service = Service(executable_path=path)
+driver = uc.Chrome(use_subprocess=True, service=service,options=options)
 
-driver.get("https://pt.wikipedia.org/wiki/Selenium_(software)")
-text = driver.find_element_by_class_name('mw-parser-output').text
+driver.get("https://www.hltv.org/stats/events?matchType=Majors")
 
-print(text)
+botao = WebDriverWait(driver, 15).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "CybotCookiebotDialogBodyButton")) # (By.CLASS_NAME, "S-dialog__closebtn") (By.XPATH, "//span[@id='NewReleases_btn_next']")
+                )
+botao.click()
 
-driver.close()
+html = driver.page_source
+soup = BeautifulSoup(html, 'html.parser')
+
+tds = soup.findAll('td', {'class':'name-col'})
+
+majors = [td.find('a')['href'] for td in tds]
+
+print(majors)
+
+for link in majors:
+    driver.get(BASE + link)
+
+
+driver.quit()
