@@ -37,5 +37,20 @@ print(majors)
 for link in majors:
     driver.get(BASE + link)
 
+    botao_players = driver.find_element(By.PARTIAL_LINK_TEXT, 'Players')
+    botao_players.click()
+
+    html = driver.page_source
+    soup = BeautifulSoup(html, 'html.parser')
+
+    tabela = soup.find('table', {'class': 'stats-table player-ratings-table'})
+
+    trs = tabela.findAll('tr')
+
+    for tr in trs:
+        pass
+
+
+
 
 driver.quit()
